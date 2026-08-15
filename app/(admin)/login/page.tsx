@@ -1,97 +1,137 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ShieldCheck, Lock, Mail, Loader2, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { loginAdmin } from '@/app/actions/auth';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [nip, setNip] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    // Hardcode dummy credentials
-    const DUMMY_EMAIL = "bk@sekolah.id";
-    const DUMMY_NIP = "19800101";
-    const DUMMY_PASSWORD = "admin";
+    setErrorMessage(null);
 
-    // Simulasi delay API
-    setTimeout(() => {
-      if (email === DUMMY_EMAIL && nip === DUMMY_NIP && password === DUMMY_PASSWORD) {
-        setError("");
-        router.push("/dashboard");
+    if (!email || !password) {
+      setErrorMessage('Email dan password wajib diisi.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await loginAdmin(email, password);
+      // Jika berhasil, arahkan ke dashboard admin
+      router.push('/admin/dashboard');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert("Terjadi kesalahan: " + error.message);
       } else {
-        setError("Kredensial tidak valid. Silakan periksa kembali Email, NIP, dan Password.");
-        setIsLoading(false);
+        alert("Terjadi kesalahan yang tidak diketahui.");
       }
-    }, 800);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-500 via-rose-400 to-orange-400 flex items-center justify-center p-4">
-      <div className="bg-white/95 backdrop-blur-sm rounded-[32px] p-8 w-full max-w-sm shadow-2xl text-center">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#fafafa] px-4 py-12">
+      
+      {/* Tombol Kembali ke Beranda */}
+      <div className="w-full max-w-md mb-6">
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Kembali ke Beranda
+        </Link>
+      </div>
+
+      {/* Card Login */}
+      <div className="w-full max-w-md bg-white border border-gray-200 rounded-3xl shadow-sm p-8 md:p-10 flex flex-col">
         
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Whisper</h1>
-          <p className="text-slate-500 font-medium text-sm">Portal Guru BK</p>
+        {/* Header Logo */}
+        <div className="flex flex-col items-center text-center mb-8">
+          <div className="w-12 h-12 bg-blue-50 text-[#1BA0E2] rounded-2xl flex items-center justify-center mb-3 shadow-inner">
+            <ShieldCheck className="w-7 h-7" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Admin Login</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Masuk khusus konselor dan admin sekolah.
+          </p>
         </div>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          {error && (
-            <div className="bg-red-50 text-red-600 text-sm font-semibold p-4 rounded-2xl border border-red-100 text-left">
-              {error}
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 text-center">
+            {errorMessage}
+          </div>
+        )}
+
+        {/* Form Login */}
+        <form onSubmit={handleLogin} className="flex flex-col space-y-4">
+          
+          {/* Email Field */}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</label>
+            <div className="relative flex items-center">
+              <Mail className="absolute left-4 w-4 h-4 text-gray-400" />
+              <input 
+                type="email" 
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nama@sekolah.sch.id"
+                disabled={isLoading}
+                className="w-full bg-gray-50 border border-gray-200 rounded-full pl-11 pr-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1BA0E2]/20 focus:border-[#1BA0E2] transition-all disabled:opacity-50"
+              />
             </div>
-          )}
+          </div>
 
-          <input 
-            type="email" 
-            placeholder="Email Institusi" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-semibold placeholder-slate-400 outline-none focus:ring-4 focus:ring-pink-500/30 transition-all"
-            required
-            disabled={isLoading}
-          />
+          {/* Password Field */}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Password</label>
+            <div className="relative flex items-center">
+              <Lock className="absolute left-4 w-4 h-4 text-gray-400" />
+              <input 
+                type="password" 
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                disabled={isLoading}
+                className="w-full bg-gray-50 border border-gray-200 rounded-full pl-11 pr-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1BA0E2]/20 focus:border-[#1BA0E2] transition-all disabled:opacity-50"
+              />
+            </div>
+          </div>
 
-          <input 
-            type="text" 
-            placeholder="NIP (Nomor Induk Pegawai)" 
-            value={nip}
-            onChange={(e) => setNip(e.target.value)}
-            className="w-full bg-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-semibold placeholder-slate-400 outline-none focus:ring-4 focus:ring-pink-500/30 transition-all"
-            required
-            disabled={isLoading}
-          />
-
-          <input 
-            type="password" 
-            placeholder="Password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-semibold placeholder-slate-400 outline-none focus:ring-4 focus:ring-pink-500/30 transition-all"
-            required
-            disabled={isLoading}
-          />
-
-          <button 
+          {/* Submit Button */}
+          <button
             type="submit"
             disabled={isLoading}
-            className="mt-4 w-full bg-black text-white font-bold text-lg rounded-full py-4 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-black/20 disabled:opacity-70 disabled:hover:scale-100 flex justify-center items-center"
+            className="mt-2 w-full flex items-center justify-center gap-2 bg-[#1BA0E2] text-white py-3 rounded-full text-sm font-medium shadow-md hover:bg-[#1588c2] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Authenticating..." : "Login"}
+            {isLoading ? (
+              <>Memproses... <Loader2 className="w-4 h-4 animate-spin" /></>
+            ) : (
+              'Masuk ke Dashboard'
+            )}
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-slate-100">
-          <p className="text-xs text-slate-400 font-medium mb-1">Testing Credentials:</p>
-          <code className="text-xs text-pink-500 bg-pink-50 px-2 py-1 rounded-lg">bk@sekolah.id | 19800101 | admin</code>
-        </div>
       </div>
+
+      {/* Footer info kecil */}
+      <div className="mt-8 text-center text-xs text-gray-400">
+        Whispr Portal &bull; Aman & Terenkripsi
+      </div>
+
     </div>
   );
 }

@@ -77,6 +77,24 @@ Consultation (konsultasi) → anonim, tapi email diminta hanya untuk kirim kode/
 - Vercel
 - Supabase
 
+  "dependencies": {
+    "axios": "^1.19.0",
+    "lucide-react": "^1.28.0",
+    "next": "16.2.12",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.12",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+
 # UI Design 
 
 - Light Mode (Base: White)
@@ -90,10 +108,6 @@ Create functions :
 - Consultation : Consultation with school counselor (user input email)
 - Categories : Collect by feel or problem user.
 
-create struktur database for Supabase 
-
-aku mau membuat project website dengn tech stack.
-
 
 aku lampirkan whisper.md sebagai informasi tentang project ku
 aku lampirkan juga refference design.
@@ -102,18 +116,3 @@ tugas kamu buatkan urutan tahap beserta prompt nya untuk membuat project website
 pastikan prompt ini lengkap sampai tahap user bisa input datanya dan admin bisa login.
 
 buatkan juga structure database untuk supabase.
-
-sebagai informasi tentang project ini aku lampirkan 
-- whisper overview project.txt
-- refference design halaman homepage.
-- supabase-schema.sql
-
-
-tugas kamu buatkan design halaman utama untuk project ini, setup global css dan style, dan tambahkan library yang di perlukan.
-
-di halaman utama terdapat : 
-- header : 
-dari kiri ke kanan : text logo whisper
-dari kanan ke kiri : text input code consultation, button login (admin)
-- section : title, description, text field input keluhan, button add image, button submit (enable ketika user input text field)
-- footer
