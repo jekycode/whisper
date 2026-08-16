@@ -2,6 +2,7 @@
 
 import { randomUUID } from 'crypto';
 import { supabase } from '@/app/lib/supabase';
+import { createClient } from "@/app/lib/supabase-server";
 
 interface ConsultationPayload {
   message: string;
@@ -77,23 +78,64 @@ export async function submitConsultationTicket(payload: ConsultationPayload) {
   return { success: true, token };
 }
 
-// Untuk fitur "Cek Kode Tiket" di halaman utama.
-// Mengembalikan `category_ids: string[]` (array), bukan `category_id` tunggal.
 export async function checkConsultationToken(token: string) {
   if (!token) throw new Error('Token tidak boleh kosong.');
 
-  const { data, error } = await supabase.rpc('get_consultation_by_token', {
-    p_token: token,
+  const cleanToken = token.trim().toUpperCase();
+
+  // 1. Validasi token dan ambil detail tiket konsultasi
+  const { data: consultData, error: consultErr } = await supabase.rpc('get_consultation_by_token', {
+    p_token: cleanToken,
   });
 
+  if (consultErr) {
+    console.error('[Consultations Action] Error checking token:', consultErr.message);
+    throw new Error('Terjadi kesalahan saat memeriksa kode tiket.');
+  }
+
+  if (!consultData || consultData.length === 0) {
+    throw new Error('Kode tiket tidak ditemukan atau tidak valid.');
+  }
+
+  const consultationDetail = consultData[0];
+
+  // 2. Ambil riwayat chat/pesan menggunakan RPC baru
+  const { data: messagesData, error: msgErr } = await supabase.rpc('get_consultation_messages_by_token', {
+    p_token: cleanToken,
+  });
+
+  if (msgErr) {
+    console.error('[Consultations Action] Error fetching messages:', msgErr.message);
+    // Kita tidak melempar error di sini, cukup biarkan history kosong jika gagal muat pesan,
+    // agar siswa tetap bisa masuk ke halaman chat.
+  }
+
+  // 3. Gabungkan detail konsultasi dengan riwayat pesannya
+  return {
+    ...consultationDetail,
+    messages: messagesData || []
+  };
+}
+
+export async function submitConsultationReply(token: string, message: string) {
+  const trimmed = message?.trim();
+ 
+  if (!token?.trim()) {
+    throw new Error('Kode tidak boleh kosong.');
+  }
+  if (!trimmed) {
+    throw new Error('Pesan tidak boleh kosong.');
+  }
+ 
+  const { error } = await supabase.rpc('add_consultation_reply', {
+    p_token: token.trim(),
+    p_message: trimmed,
+  });
+ 
   if (error) {
-    console.error('[Consultations Action] Error checking token:', error.message);
-    throw new Error('Terjadi kesalahan saat memeriksa token.');
+    console.error('[Consultations Action] Error sending reply:', error.message);
+    throw new Error('Gagal mengirim pesan. Coba lagi ya.');
   }
-
-  if (!data || data.length === 0) {
-    throw new Error('Token tidak ditemukan atau tidak valid.');
-  }
-
-  return data[0];
+ 
+  return { success: true };
 }
