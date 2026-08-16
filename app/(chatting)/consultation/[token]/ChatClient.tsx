@@ -114,7 +114,7 @@ export default function ChatClient({ token, initialData, categories }: ChatClien
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             <h1 className="font-bold text-gray-900 text-sm sm:text-base flex items-center gap-1.5 truncate">
-              <KeyRound className="w-4 h-4 text-gray-400 shrink-0" /> {token}
+              <KeyRound className="w-4 h-4 text-gray-400 shrink-0" /> {maskToken(token)}
             </h1>
             <span className={`shrink-0 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border ${STATUS_COLOR[data.status]}`}>
               {STATUS_LABEL[data.status]}
@@ -196,4 +196,15 @@ export default function ChatClient({ token, initialData, categories }: ChatClien
       
     </div>
   );
+}
+
+function maskToken(tokenStr: string): string {
+  if (!tokenStr || tokenStr.length <= 4) return tokenStr;
+  
+  const visibleLength = 2; // Jumlah karakter yang tetap terlihat di awal & akhir
+  const start = tokenStr.slice(0, visibleLength);
+  const end = tokenStr.slice(-visibleLength);
+  const maskedLength = tokenStr.length - (visibleLength * 2);
+  
+  return `${start}${'*'.repeat(Math.max(maskedLength, 2))}${end}`;
 }
