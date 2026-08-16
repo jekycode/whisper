@@ -39,7 +39,7 @@ export default function Header() {
 
         {/* Login Button: Mobile (Ikon Bulat), Desktop (Pill dengan Teks) */}
         <Link 
-          href="/login" 
+          href="admin/login" 
           className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-all border border-gray-200 rounded-full p-2 md:px-4 md:py-2 bg-white shadow-sm hover:bg-gray-50 hover:border-gray-300"
           title="Admin Login"
         >
