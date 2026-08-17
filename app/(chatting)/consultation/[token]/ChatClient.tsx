@@ -96,7 +96,6 @@ export default function ChatClient({ token, initialData, categories }: ChatClien
     .filter(Boolean) as string[];
 
   return (
-    // Menggunakan h-[100dvh] agar menyesuaikan viewport mobile secara akurat
     <div className="h-[100dvh] w-full flex flex-col bg-[#fafafa] overflow-hidden">
       
       {/* ==========================================
@@ -176,7 +175,6 @@ export default function ChatClient({ token, initialData, categories }: ChatClien
           rows={1}
           disabled={isSendingReply}
           onKeyDown={(e) => {
-            // Mengizinkan Shift+Enter untuk baris baru di Desktop, Enter untuk kirim
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
               handleSendReply();
@@ -201,7 +199,7 @@ export default function ChatClient({ token, initialData, categories }: ChatClien
 function maskToken(tokenStr: string): string {
   if (!tokenStr || tokenStr.length <= 4) return tokenStr;
   
-  const visibleLength = 2; // Jumlah karakter yang tetap terlihat di awal & akhir
+  const visibleLength = 2;
   const start = tokenStr.slice(0, visibleLength);
   const end = tokenStr.slice(-visibleLength);
   const maskedLength = tokenStr.length - (visibleLength * 2);
